@@ -39,7 +39,7 @@ func run(config *Config) error {
 	}
 
 	log.Println("INFO: Updating local repo")
-	if err = repo.UpdateFiles(configs, &object.Signature{Name: config.CommitUsername, Email: config.CommitEmail}); err != nil {
+	if err = repo.UpdateFiles(configs, &object.Signature{Name: config.CommitUsername, Email: config.CommitEmail, When: time.Now()}); err != nil {
 		return fmt.Errorf("could not create update files: %w", err)
 	}
 
