@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"time"
@@ -24,7 +26,17 @@ func run(config *Config) error {
 	log.Println("INFO: Fetching Ruckus configurations")
 	snmp.DefaultConfig.DownloadConfigs(config.Hosts, 16, t)
 
-	configs := t.Shutdown()
+	hashes := t.Shutdown()
+
+	// convert hashes to hostname files
+	configs := make(map[string][]byte)
+	for _, h := range config.Hosts {
+		sum := md5.Sum([]byte(h))
+		hash := hex.EncodeToString(sum[:])
+		if buf, ok := hashes[hash]; ok {
+			configs[h+".conf"] = buf
+		}
+	}
 
 	log.Println("INFO: Updating local repo")
 	if err = repo.UpdateFiles(configs, &object.Signature{Name: config.CommitUsername, Email: config.CommitEmail}); err != nil {

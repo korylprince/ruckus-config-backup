@@ -2,6 +2,7 @@
 package snmp
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net"
@@ -10,7 +11,7 @@ import (
 	// currently not imported by gosnmp
 	_ "crypto/aes"
 	_ "crypto/des"
-	_ "crypto/md5"
+	"crypto/md5"
 	_ "crypto/sha1"
 	_ "crypto/sha256"
 	_ "crypto/sha512"
@@ -118,11 +119,13 @@ func (c *Config) DownloadConfig(host string, svr *tftp.Server) error {
 		ip = ip[12:]
 	}
 
+	sum := md5.Sum([]byte(host))
+
 	res, err := snmp.Set([]gosnmp.SnmpPDU{
 		{Name: snmpPassword, Type: gosnmp.OctetString, Value: c.AuthPassword},
 		{Name: snmpTFTPServerAddrType, Type: gosnmp.Integer, Value: int(AddrIPv4)},
 		{Name: snmpTFTPServerAddr, Type: gosnmp.OctetString, Value: ip},
-		{Name: snmpTFTPCfgName, Type: gosnmp.OctetString, Value: host + ".conf"},
+		{Name: snmpTFTPCfgName, Type: gosnmp.OctetString, Value: hex.EncodeToString(sum[:])},
 		{Name: snmpTFTPLoad, Type: gosnmp.Integer, Value: int(CfgLoadRunningConfigDownload)},
 	})
 	if err != nil {
