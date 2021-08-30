@@ -1,0 +1,20 @@
+[Unit]
+Description=Ruckus Config Backup
+After=network.target
+
+[Service]
+Restart=always
+Type=simple
+ExecStart=/opt/ruckus-config-backup
+
+Environment=SNMPUSERNAME="user"
+Environment=SNMPAUTHPASSWD="pass"
+Environment=SNMPPRIVPASSWD="random"
+Environment=LOCALREPO="/opt/ruckus-configs/"
+Environment=REMOTEREPO="https://git.example.com/ruckus-configs.git"
+Environment=REMOTEUSERNAME="user"
+Environment=REMOTEPASSWD="pass"
+Environment=HOSTS="switch1.example.com,switch2.example.com"
+
+[Install]
+WantedBy=multi-user.target
